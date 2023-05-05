@@ -1,0 +1,11 @@
+{
+  "name": "budget-manager",
+  "version": "1.0.0",
+  "description": "New Budget Manager with a Node.js backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Varnit Sinha",
+  "license": "ISC"
+}
