@@ -4,7 +4,13 @@
   "description": "New Budget Manager with a Node.js backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --parallel -r ts-node/register src/tests/*.ts",
+    "build": "npx tsc",
+    "start": "nodemon dist/server.js",
+    "code-docs": "npx typedoc src/**/*.ts",
+    "dev": "nodemon src/server.ts",
+    "docs": "python3 src/scripts/open_docs.py & nodemon src/server.ts",
+    "release": "node dist/server.js"
   },
   "author": "Varnit Sinha",
   "license": "ISC",
