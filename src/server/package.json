@@ -35,5 +35,6 @@
     "mocha": "^10.2.0",
     "supertest": "^6.3.3",
     "typedoc": "^0.24.6"
-  }
+  },
+  "proxy": "http://localhost:5555/"
 }
