@@ -1,16 +1,39 @@
+/**
+ * Transaction model
+ */
 export interface Transaction {
   // serial id of the transaction
-  id: number;
+  id?: number;
 
-  // merchant name
-  merchant: string;
+  // serial id of the merchant
+  merchantID?: number;
 
-  // transaction type
-  type: string;
+  // serial id of the transaction type
+  typeID?: number;
 
   // transaction amount
-  amount: number;
+  amount?: number;
 
   // transaction date
-  date: string;
+  date?: string;
+}
+
+/**
+ * Transaction Request model
+ */
+export interface TransactionRequest {
+  // serial id of the transaction
+  id?: number;
+
+  // name of the merchant for the transaction
+  merchant?: string;
+
+  // type of the transaction
+  type?: string;
+
+  // amount of the transaction
+  amount?: number;
+
+  // date of the transaction
+  date?: string;
 }
