@@ -12,12 +12,12 @@ const db = new Database(DB_NAME, (err) => {
     db.run(
       `CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL UNIQUE
       );
 
       CREATE TABLE IF NOT EXISTS transaction-types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT NOT NULL
+        type TEXT NOT NULL UNIQUE
       );
       
       CREATE TABLE IF NOT EXISTS transactions (
