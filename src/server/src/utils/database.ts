@@ -13,25 +13,43 @@ const db = new Database(DB_NAME, (err) => {
       `CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
-      );
+      );`,
+      (err) => {
+        if (err) {
+          console.log(`${err}`);
+        } else {
+          console.log("merchants table created");
+        }
+      }
+    );
 
-      CREATE TABLE IF NOT EXISTS transaction-types (
+    db.run(
+      `CREATE TABLE IF NOT EXISTS transaction_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT NOT NULL UNIQUE
-      );
-      
-      CREATE TABLE IF NOT EXISTS transactions (
+      );`,
+      (err) => {
+        if (err) {
+          console.log(`${err}`);
+        } else {
+          console.log("transaction-types table created");
+        }
+      }
+    );
+
+    db.run(
+      `CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        merchantID INTEGER FOREIGN KEY REFERENCES merchants(id),
-        typeID INTEGER FOREIGN KEY REFERENCES transaction-types(id),
+        merchantID INTEGER REFERENCES merchants(id),
+        typeID INTEGER REFERENCES transaction_types(id),
         amount DECIMAL(5,2) NOT NULL,
         date DATE NOT NULL
       );`,
       (err) => {
         if (err) {
-          console.log("Database already initialized.");
+          console.log(`${err}`);
         } else {
-          console.log("Database successfully initialized.");
+          console.log("transactions table created");
         }
       }
     );
