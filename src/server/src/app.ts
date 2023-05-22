@@ -4,6 +4,10 @@ import swaggerUi from "swagger-ui-express";
 import swaggerOptions from "./utils/swagger_options";
 import cors from "cors";
 
+import merchantsRoute from "./routes/merchants";
+import transactionTypesRoute from "./routes/transaction-types";
+import transactionsRoute from "./routes/transactions";
+
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
 const app: Express = express();
 
@@ -15,5 +19,9 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: true }));
+
+app.use("/merchants", merchantsRoute);
+app.use("/transaction-types", transactionTypesRoute);
+app.use("/transactions", transactionsRoute);
 
 export default app;
