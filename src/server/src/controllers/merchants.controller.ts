@@ -1,4 +1,4 @@
-import db from "../utils/database";
+import dbPromise from "../utils/database";
 import { Merchant } from "../models/merchant.model";
 import { SuccessResponse, FailureResponse } from "../utils/responses";
 
@@ -13,19 +13,14 @@ export async function addMerchant(name: string): Promise<SuccessResponse | Failu
   }
 
   try {
+    const db = await dbPromise;
     const query = "INSERT INTO merchants (name) VALUES (?)";
     const params = [name];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(201, "successfully added merchant");
-    });
-
-    return new FailureResponse(500, "failed to add merchant");
+    await db.run(query, params);
+    return new SuccessResponse(201, "successfully added merchant");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -35,19 +30,13 @@ export async function addMerchant(name: string): Promise<SuccessResponse | Failu
  */
 export async function getAllMerchants(): Promise<Merchant[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM merchants";
-    const params = [];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get merchants");
+    const merchants = await db.all<Merchant[]>(query);
+    return merchants;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -58,19 +47,14 @@ export async function getAllMerchants(): Promise<Merchant[] | FailureResponse> {
  */
 export async function getMerchantByID(id: number): Promise<Merchant[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM merchants WHERE id = ?";
     const params = [id];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get merchant");
+    const merchants = await db.all<Merchant[]>(query, params);
+    return merchants;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -81,19 +65,14 @@ export async function getMerchantByID(id: number): Promise<Merchant[] | FailureR
  */
 export async function getMerchantByName(name: string): Promise<Merchant[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM merchants WHERE name = ?";
     const params = [name];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get merchant");
+    const merchants = await db.all<Merchant[]>(query, params);
+    return merchants;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -110,19 +89,14 @@ export async function updateMerchant(
   }
 
   try {
+    const db = await dbPromise;
     const query = "UPDATE merchants SET name = ? WHERE id = ?";
     const params = [merchant.name, merchant.id];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(200, "successfully updated merchant");
-    });
-
-    return new FailureResponse(500, "failed to update merchant");
+    await db.run(query, params);
+    return new SuccessResponse(200, "successfully updated merchant");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -137,18 +111,13 @@ export async function deleteMerchant(id: number): Promise<SuccessResponse | Fail
   }
 
   try {
+    const db = await dbPromise;
     const query = "DELETE FROM merchants WHERE id = ?";
     const params = [id];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(200, "successfully deleted merchant");
-    });
-
-    return new FailureResponse(500, "failed to delete merchant");
+    await db.run(query, params);
+    return new SuccessResponse(200, "successfully deleted merchant");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
