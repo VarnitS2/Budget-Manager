@@ -1,66 +1,50 @@
-import { Database } from "sqlite3";
+import sqlite3 from "sqlite3";
+import { open, Database } from "sqlite";
+import { Logger } from "./logger";
 
 const DB_NAME = "db.sqlite";
+const logger = new Logger();
 
-const DB_LOG_PREFIX = "[db]";
-const FG_RED = "\x1b[31m";
-const FG_GREEN = "\x1b[32m";
-const FG_RESET = "\x1b[0m";
-
-const db = new Database(DB_NAME, (err) => {
-  if (err) {
-    // Cannot open database
-    console.error(`${FG_RED}${DB_LOG_PREFIX} ${err.message}${FG_RESET}`);
-    throw err;
-  } else {
-    console.log(`${FG_GREEN}${DB_LOG_PREFIX} connected to database${FG_RESET}`);
-    db.run(
-      `CREATE TABLE IF NOT EXISTS merchants (
+const dbPromise = (async (): Promise<Database> => {
+  try {
+    const db = await open({
+      filename: DB_NAME,
+      driver: sqlite3.Database,
+    });
+    logger.success(`Connected to ${DB_NAME}`);
+    
+    await db.run(`
+      CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
-      );`,
-      (err) => {
-        if (err) {
-          console.log(`${err}`);
-        } else {
-          console.log(`${FG_GREEN}${DB_LOG_PREFIX} merchants table check passed${FG_RESET}`);
-        }
-      }
-    );
+      );
+    `);
+    logger.success(`merchants table check passed`);
 
-    db.run(
-      `CREATE TABLE IF NOT EXISTS transaction_types (
+    await db.run(`
+      CREATE TABLE IF NOT EXISTS transaction_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT NOT NULL UNIQUE
-      );`,
-      (err) => {
-        if (err) {
-          console.log(`${err}`);
-        } else {
-          console.log(
-            `${FG_GREEN}${DB_LOG_PREFIX} transaction-types table check passed${FG_RESET}`
-          );
-        }
-      }
-    );
+      );
+    `);
+    logger.success(`transaction_types table check passed`);
 
-    db.run(
-      `CREATE TABLE IF NOT EXISTS transactions (
+    await db.run(`
+      CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         merchantID INTEGER REFERENCES merchants(id),
         typeID INTEGER REFERENCES transaction_types(id),
         amount DECIMAL(5,2) NOT NULL,
         date DATE NOT NULL
-      );`,
-      (err) => {
-        if (err) {
-          console.log(`${err}`);
-        } else {
-          console.log(`${FG_GREEN}${DB_LOG_PREFIX} transactions table check passed${FG_RESET}`);
-        }
-      }
-    );
-  }
-});
+      );
+    `);
+    logger.success(`transactions table check passed`);
 
-export default db;
+    return db;
+  } catch (err) {
+    logger.error(`Error initializing database: ${err}`);
+    throw err;
+  }
+})();
+
+export default dbPromise;
