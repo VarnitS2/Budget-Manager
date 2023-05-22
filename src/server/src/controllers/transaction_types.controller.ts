@@ -1,4 +1,4 @@
-import db from "../utils/database";
+import dbPromise from "../utils/database";
 import { TransactionType } from "../models/transaction_type.model";
 import { SuccessResponse, FailureResponse } from "../utils/responses";
 
@@ -13,17 +13,12 @@ export async function addTransactionType(type: string): Promise<SuccessResponse 
   }
 
   try {
+    const db = await dbPromise;
     const query = "INSERT INTO transaction-types (type) VALUES (?)";
     const params = [type];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(201, "successfully added transaction type");
-    });
-
-    return new FailureResponse(500, "failed to add transaction type");
+    await db.run(query, params);
+    return new SuccessResponse(201, "successfully added transaction type");
   } catch (err) {
     return new FailureResponse(500, err);
   }
@@ -35,17 +30,11 @@ export async function addTransactionType(type: string): Promise<SuccessResponse 
  */
 export async function getAllTransactionTypes(): Promise<TransactionType[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM transaction-types";
-    const params = [];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get transaction types");
+    const types = await db.all<TransactionType[]>(query);
+    return types;
   } catch (err) {
     return new FailureResponse(500, err);
   }
@@ -60,17 +49,12 @@ export async function getTransactionTypeByID(
   id: number
 ): Promise<TransactionType[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM transaction-types WHERE id = ?";
     const params = [id];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get transaction type");
+    const types = await db.all<TransactionType[]>(query, params);
+    return types;
   } catch (err) {
     return new FailureResponse(500, err);
   }
@@ -85,17 +69,12 @@ export async function getTransactionTypeByType(
   type: string
 ): Promise<TransactionType[] | FailureResponse> {
   try {
+    const db = await dbPromise;
     const query = "SELECT * FROM transaction-types WHERE type = ?";
     const params = [type];
 
-    db.all(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return res;
-    });
-
-    return new FailureResponse(500, "failed to get transaction type");
+    const types = await db.all<TransactionType[]>(query, params);
+    return types;
   } catch (err) {
     return new FailureResponse(500, err);
   }
@@ -114,17 +93,12 @@ export async function updateTransactionType(
   }
 
   try {
+    const db = await dbPromise;
     const query = "UPDATE transaction-types SET type = ? WHERE id = ?";
     const params = [type.type, type.id];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(200, "successfully updated transaction type");
-    });
-
-    return new FailureResponse(500, "failed to update transaction type");
+    await db.run(query, params);
+    return new SuccessResponse(200, "successfully updated transaction type");
   } catch (err) {
     return new FailureResponse(500, err);
   }
@@ -143,17 +117,12 @@ export async function deleteTransactionType(
   }
 
   try {
+    const db = await dbPromise;
     const query = "DELETE FROM transaction-types WHERE id = ?";
     const params = [id];
 
-    db.run(query, params, (err, res) => {
-      if (err) {
-        return new FailureResponse(500, err.message);
-      }
-      return new SuccessResponse(200, "successfully deleted transaction type");
-    });
-
-    return new FailureResponse(500, "failed to delete transaction type");
+    await db.run(query, params);
+    return new SuccessResponse(200, "successfully deleted transaction type");
   } catch (err) {
     return new FailureResponse(500, err);
   }

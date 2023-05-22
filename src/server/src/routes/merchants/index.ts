@@ -2,11 +2,11 @@ import express, { Router } from "express";
 import { FailureResponse } from "../../utils/responses";
 import {
   addMerchant,
-  deleteMerchant,
   getAllMerchants,
   getMerchantByID,
   getMerchantByName,
   updateMerchant,
+  deleteMerchant,
 } from "../../controllers/merchants.controller";
 
 const merchantsRoute: Router = express.Router();
