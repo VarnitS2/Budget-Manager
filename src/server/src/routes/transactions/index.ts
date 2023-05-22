@@ -7,3 +7,5 @@ const transactionsRoute: Router = express.Router();
 transactionsRoute.get("/", (req, res) => {
   res.status(200).send({ message: "You've reached the transactions endpoint" });
 });
+
+export default transactionsRoute;

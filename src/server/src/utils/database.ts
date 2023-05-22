@@ -12,28 +12,30 @@ const dbPromise = (async (): Promise<Database> => {
       driver: sqlite3.Database,
     });
     logger.success(`Connected to ${DB_NAME}`);
-    
+
+    await db.run(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        multiplier INTEGER NOT NULL
+      );
+    `);
+    logger.success(`categories table check passed`);
+
     await db.run(`
       CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
+        categoryID INTEGER REFERENCES categories(id)
       );
     `);
     logger.success(`merchants table check passed`);
 
     await db.run(`
-      CREATE TABLE IF NOT EXISTS transaction_types (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT NOT NULL UNIQUE
-      );
-    `);
-    logger.success(`transaction_types table check passed`);
-
-    await db.run(`
       CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         merchantID INTEGER REFERENCES merchants(id),
-        typeID INTEGER REFERENCES transaction_types(id),
+        categoryID INTEGER REFERENCES categories(id),
         amount DECIMAL(5,2) NOT NULL,
         date DATE NOT NULL
       );
