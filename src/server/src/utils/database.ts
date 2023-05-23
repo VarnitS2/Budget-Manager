@@ -26,7 +26,7 @@ const dbPromise = (async (): Promise<Database> => {
       CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        categoryID INTEGER REFERENCES categories(id) NULL
+        categoryID INTEGER REFERENCES categories(id) NOT NULL
       );
     `);
     logger.success(`merchants table check passed`);
