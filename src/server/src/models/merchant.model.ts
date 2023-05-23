@@ -7,4 +7,7 @@ export interface Merchant {
 
   // merchant name
   name?: string;
+
+  // serial id of the category of the merchant
+  categoryID?: number;
 }

@@ -8,9 +8,6 @@ export interface Transaction {
   // serial id of the merchant
   merchantID?: number;
 
-  // serial id of the transaction type
-  typeID?: number;
-
   // transaction amount
   amount?: number;
 
@@ -28,8 +25,11 @@ export interface TransactionRequest {
   // name of the merchant for the transaction
   merchant?: string;
 
-  // type of the transaction
-  type?: string;
+  // category of the merchant for the transaction
+  category?: string;
+
+  // multiplier of the category of the merchant for the transaction
+  multiplier?: number;
 
   // amount of the transaction
   amount?: number;
