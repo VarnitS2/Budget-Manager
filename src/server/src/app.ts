@@ -5,6 +5,7 @@ import swaggerOptions from "./utils/swagger_options";
 import cors from "cors";
 
 import merchantsRoute from "./routes/merchants";
+import categoriesRoute from "./routes/categories";
 import transactionsRoute from "./routes/transactions";
 
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
@@ -20,6 +21,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: true }));
 
 app.use("/merchants", merchantsRoute);
+app.use("/categories", categoriesRoute);
 app.use("/transactions", transactionsRoute);
 
 export default app;
