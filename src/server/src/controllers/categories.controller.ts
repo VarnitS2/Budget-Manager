@@ -4,18 +4,20 @@ import { SuccessResponse, FailureResponse } from "../utils/responses";
 
 /**
  * Asynchronous controller function to add a category to the database.
- * @param name - category to be added to the database
+ * @param category - category of type Category to be added to the database
  * @returns a SuccessResponse if the category was added successfully, a FailureResponse otherwise
  */
-export async function addCategory(name: string): Promise<SuccessResponse | FailureResponse> {
-  if (!name) {
+export async function addCategory(
+  category: Category
+): Promise<SuccessResponse | FailureResponse> {
+  if (!category.name || !category.multiplier) {
     return new FailureResponse(400, "missing required parameters");
   }
 
   try {
     const db = await dbPromise;
-    const query = "INSERT INTO categories (name) VALUES (?)";
-    const params = [name];
+    const query = "INSERT INTO categories (name, multiplier) VALUES (?, ?)";
+    const params = [category.name, category.multiplier];
 
     await db.run(query, params);
     return new SuccessResponse(201, "successfully added category");
@@ -45,9 +47,7 @@ export async function getAllCategories(): Promise<Category[] | FailureResponse> 
  * @param id - the ID of the category to be retrieved
  * @returns an array containing a category if the query was successful, a FailureResponse otherwise
  */
-export async function getCategoryByID(
-  id: number
-): Promise<Category[] | FailureResponse> {
+export async function getCategoryByID(id: number): Promise<Category[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM categories WHERE id = ?";
@@ -65,9 +65,7 @@ export async function getCategoryByID(
  * @param name - the name of the category to be retrieved
  * @returns an array containing a category if the query was successful, a FailureResponse otherwise
  */
-export async function getCategoryByName(
-  name: string
-): Promise<Category[] | FailureResponse> {
+export async function getCategoryByName(name: string): Promise<Category[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM categories WHERE name = ?";
@@ -88,16 +86,24 @@ export async function getCategoryByName(
 export async function updateCategory(
   category: Category
 ): Promise<SuccessResponse | FailureResponse> {
-  if (!category.id || !category.name) {
+  if (!category.id) {
     return new FailureResponse(400, "missing required parameters");
   }
 
   try {
     const db = await dbPromise;
-    const query = "UPDATE categories SET name = ? WHERE id = ?";
-    const params = [category.name, category.id];
 
-    await db.run(query, params);
+    if (category.name) {
+      const query = "UPDATE categories SET name = ? WHERE id = ?";
+      const params = [category.name, category.id];
+      await db.run(query, params);
+    }
+    if (category.multiplier) {
+      const query = "UPDATE categories SET multiplier = ? WHERE id = ?";
+      const params = [category.multiplier, category.id];
+      await db.run(query, params);
+    }
+    
     return new SuccessResponse(200, "successfully updated category");
   } catch (err) {
     return new FailureResponse(500, err);
@@ -109,9 +115,7 @@ export async function updateCategory(
  * @param id - the ID of the category to be deleted
  * @returns a SuccessResponse if the category was deleted successfully, a FailureResponse otherwise
  */
-export async function deleteCategory(
-  id: number
-): Promise<SuccessResponse | FailureResponse> {
+export async function deleteCategory(id: number): Promise<SuccessResponse | FailureResponse> {
   if (!id) {
     return new FailureResponse(400, "missing required parameters");
   }
