@@ -25,7 +25,7 @@ const dbPromise = (async (): Promise<Database> => {
     await db.run(`
       CREATE TABLE IF NOT EXISTS merchants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE
+        name TEXT NOT NULL UNIQUE,
         categoryID INTEGER REFERENCES categories(id) NULL
       );
     `);

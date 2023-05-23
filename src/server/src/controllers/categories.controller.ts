@@ -22,7 +22,7 @@ export async function addCategory(
     await db.run(query, params);
     return new SuccessResponse(201, "successfully added category");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -38,7 +38,7 @@ export async function getAllCategories(): Promise<Category[] | FailureResponse> 
     const categories = await db.all<Category[]>(query);
     return categories;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -56,7 +56,7 @@ export async function getCategoryByID(id: number): Promise<Category[] | FailureR
     const categories = await db.all<Category[]>(query, params);
     return categories;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -74,7 +74,7 @@ export async function getCategoryByName(name: string): Promise<Category[] | Fail
     const categories = await db.all<Category[]>(query, params);
     return categories;
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -106,7 +106,7 @@ export async function updateCategory(
     
     return new SuccessResponse(200, "successfully updated category");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
 
@@ -128,6 +128,6 @@ export async function deleteCategory(id: number): Promise<SuccessResponse | Fail
     await db.run(query, params);
     return new SuccessResponse(200, "successfully deleted category");
   } catch (err) {
-    return new FailureResponse(500, err);
+    return new FailureResponse(500, `${err}`);
   }
 }
