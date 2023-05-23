@@ -8,6 +8,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "../../controllers/categories.controller";
+import { Category } from "../../models/category.model";
 
 const categoriesRoute: Router = express.Router();
 
@@ -257,18 +258,21 @@ categoriesRoute.get("/by-name/:name", async (req, res) => {
  *        description: the ID of the category to be updated in the database
  *        schema:
  *          type: integer
- *      - in: path
- *        name: name
- *        required: false
- *        description: the new name of the category to be updated in the database
- *        schema:
- *          type: string
- *      - in: path
- *        name: multiplier
- *        required: false
- *        description: the new transaction amount multiplier of the category to be updated in the database
- *        schema:
- *          type: number
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: the new name of the category to be updated in the database
+ *                example: "Food"
+ *              multiplier:
+ *                type: number
+ *                description: the new transaction amount multiplier of the category to be updated in the database
+ *                example: 1.0
  *    operationId: updateCategory
  *    responses:
  *      200:
@@ -292,13 +296,11 @@ categoriesRoute.get("/by-name/:name", async (req, res) => {
  *                  type: string
  *                  example: failed to update category
  */
-categoriesRoute.put("/update/:id/:name/:multiplier", async (req, res) => {
+categoriesRoute.put("/update/:id", async (req, res) => {
   try {
-    const response = await updateCategory({
-      id: parseInt(req.params.id),
-      name: req.params.name,
-      multiplier: parseInt(req.params.multiplier),
-    });
+    const category: Category = req.body;
+    category.id = parseInt(req.params.id);
+    const response = await updateCategory(category);
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
