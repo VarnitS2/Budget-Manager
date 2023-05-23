@@ -271,7 +271,7 @@ merchantsRoute.put("/update/:id/:name", async (req, res) => {
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
-      res.status(200).send({ message: response.message });
+      res.status(response.status).send({ message: response.message });
     }
   } catch (err) {
     res.status(500).send({ error: err });
@@ -319,7 +319,7 @@ merchantsRoute.delete("/delete/:id", async (req, res) => {
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
-      res.status(200).send({ message: response.message });
+      res.status(response.status).send({ message: response.message });
     }
   } catch (err) {
     res.status(500).send({ error: err });
