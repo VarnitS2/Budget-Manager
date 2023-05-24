@@ -18,34 +18,36 @@ categoriesRoute.get("/", (req, res) => {
 
 /**
  * @swagger
- * /categories/add/{name}/{multiplier}:
+ * /categories/add:
  *  post:
  *    description: Adds a category to the database
- *    parameters:
- *      - in: path
- *        name: name
- *        required: true
- *        description: name of the category to be added to the database
- *        schema:
- *          type: string
- *      - in: path
- *        name: multiplier
- *        required: true
- *        description: transaction amount multiplier of the category to be added to the database (-1 or 1)
- *        schema:
- *          type: number
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: the new name of the category to be updated in the database
+ *                example: "Food"
+ *              multiplier:
+ *                type: number
+ *                description: the new transaction amount multiplier of the category to be updated in the database
+ *                example: -1
  *    operationId: addCategory
  *    responses:
- *      201:
- *        description: success message for adding a category
+ *      200:
+ *        description: ID of the category that was added to the database
  *        content:
  *          application/json:
  *            schema:
  *              type: object
  *              properties:
- *                message:
- *                  type: string
- *                  example: successfully added category
+ *                id:
+ *                  type: number
+ *                  example: 1
  *      500:
  *        description: failure message for adding a category
  *        content:
@@ -57,16 +59,14 @@ categoriesRoute.get("/", (req, res) => {
  *                  type: string
  *                  example: failed to add category
  */
-categoriesRoute.post("/add/:name/:multiplier", async (req, res) => {
+categoriesRoute.post("/add", async (req, res) => {
   try {
-    const response = await addCategory({
-      name: req.params.name,
-      multiplier: parseInt(req.params.multiplier),
-    });
+    const category: Category = req.body;
+    const response = await addCategory(category);
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
-      res.status(response.status).send({ message: response.message });
+      res.status(200).send({ id: response });
     }
   } catch (err) {
     res.status(500).send({ error: err });
@@ -248,16 +248,9 @@ categoriesRoute.get("/by-name/:name", async (req, res) => {
 
 /**
  * @swagger
- * /categories/update/{id}/{name}/{multiplier}:
+ * /categories/update:
  *  put:
  *    description: Updates a category by ID in the database
- *    parameters:
- *      - in: path
- *        name: id
- *        required: true
- *        description: the ID of the category to be updated in the database
- *        schema:
- *          type: integer
  *    requestBody:
  *      required: true
  *      content:
@@ -265,6 +258,10 @@ categoriesRoute.get("/by-name/:name", async (req, res) => {
  *          schema:
  *            type: object
  *            properties:
+ *              id:
+ *                type: integer
+ *                description: the serial ID of the category to be updated in the database
+ *                example: 1
  *              name:
  *                type: string
  *                description: the new name of the category to be updated in the database
@@ -296,10 +293,9 @@ categoriesRoute.get("/by-name/:name", async (req, res) => {
  *                  type: string
  *                  example: failed to update category
  */
-categoriesRoute.put("/update/:id", async (req, res) => {
+categoriesRoute.put("/update", async (req, res) => {
   try {
     const category: Category = req.body;
-    category.id = parseInt(req.params.id);
     const response = await updateCategory(category);
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });

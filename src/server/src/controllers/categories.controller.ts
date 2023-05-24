@@ -5,11 +5,11 @@ import { SuccessResponse, FailureResponse } from "../utils/responses";
 /**
  * Asynchronous controller function to add a category to the database.
  * @param category - category of type Category to be added to the database
- * @returns a SuccessResponse if the category was added successfully, a FailureResponse otherwise
+ * @returns the ID of the added category if the query was successful, a FailureResponse otherwise
  */
 export async function addCategory(
   category: Category
-): Promise<SuccessResponse | FailureResponse> {
+): Promise<number | FailureResponse> {
   if (!category.name || !category.multiplier) {
     return new FailureResponse(400, "missing required parameters");
   }
@@ -19,8 +19,12 @@ export async function addCategory(
     const query = "INSERT INTO categories (name, multiplier) VALUES (?, ?)";
     const params = [category.name, category.multiplier];
 
-    await db.run(query, params);
-    return new SuccessResponse(201, "successfully added category");
+    const res = await db.run(query, params);
+    if (!res.lastID) {
+      return new FailureResponse(500, "failed to add category");
+    }
+    
+    return res.lastID;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
