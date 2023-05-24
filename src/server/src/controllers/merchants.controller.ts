@@ -1,24 +1,51 @@
 import dbPromise from "../utils/database";
-import { Merchant } from "../models/merchant.model";
+import { Merchant, MerchantRequest } from "../models/merchant.model";
 import { SuccessResponse, FailureResponse } from "../utils/responses";
+import { addCategory, getCategoryByName } from "./categories.controller";
 
 /**
  * Asynchronous controller function to add a merchant to the database.
- * @param name - name of the merchant to be added to the database
- * @returns a SuccessResponse if the merchant was added successfully, a FailureResponse otherwise
+ * @param merchant - merchant of type MerchantRequest to be added to the database
+ * @returns the ID of the added merchant if the query was successful, a FailureResponse otherwise
  */
-export async function addMerchant(name: string): Promise<SuccessResponse | FailureResponse> {
-  if (!name) {
+export async function addMerchant(merchant: MerchantRequest): Promise<number | FailureResponse> {
+  if (!merchant.name || !merchant.categoryName) {
     return new FailureResponse(400, "missing required parameters");
   }
 
   try {
-    const db = await dbPromise;
-    const query = "INSERT INTO merchants (name) VALUES (?)";
-    const params = [name];
+    const categoriesRes = await getCategoryByName(merchant.categoryName);
+    if (categoriesRes instanceof FailureResponse) {
+      return categoriesRes;
+    }
 
-    await db.run(query, params);
-    return new SuccessResponse(201, "successfully added merchant");
+    let categoryID: number;
+    if (categoriesRes.length === 0) {
+      if (!merchant.multiplier) {
+        return new FailureResponse(400, "missing required parameters [multiplier]");
+      }
+      const categoriesCreateRes = await addCategory({
+        name: merchant.categoryName,
+        multiplier: merchant.multiplier,
+      });
+      if (categoriesCreateRes instanceof FailureResponse) {
+        return categoriesCreateRes;
+      }
+      categoryID = categoriesCreateRes;
+    } else {
+      categoryID = categoriesRes[0].id!;
+    }
+
+    const db = await dbPromise;
+    const query = "INSERT INTO merchants (name, categoryID) VALUES (?, ?)";
+    const params = [merchant.name, categoryID];
+
+    const res = await db.run(query, params);
+    if (!res.lastID) {
+      return new FailureResponse(500, "failed to add merchant");
+    }
+
+    return res.lastID;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -78,22 +105,52 @@ export async function getMerchantByName(name: string): Promise<Merchant[] | Fail
 
 /**
  * Asynchronous controller function to update a merchant in the database.
- * @param merchant - merchant of type Merchant to be updated in the database
+ * @param merchant - merchant of type MerchantRequest to be updated in the database
  * @returns a SuccessResponse if the merchant was updated successfully, a FailureResponse otherwise
  */
 export async function updateMerchant(
-  merchant: Merchant
+  merchant: MerchantRequest
 ): Promise<SuccessResponse | FailureResponse> {
-  if (!merchant.id || !merchant.name) {
-    return new FailureResponse(400, "missing required parameters");
+  if (!merchant.id) {
+    return new FailureResponse(400, "missing required parameters [id]");
   }
 
   try {
     const db = await dbPromise;
-    const query = "UPDATE merchants SET name = ? WHERE id = ?";
-    const params = [merchant.name, merchant.id];
 
-    await db.run(query, params);
+    if (merchant.name) {
+      const query = "UPDATE merchants SET name = ? WHERE id = ?";
+      const params = [merchant.name, merchant.id];
+      await db.run(query, params);
+    }
+    
+    if (merchant.categoryName) {
+      const categoriesRes = await getCategoryByName(merchant.categoryName);
+      if (categoriesRes instanceof FailureResponse) {
+        return categoriesRes;
+      }
+      let categoryID: number;
+      if (categoriesRes.length === 0) {
+        if (!merchant.multiplier) {
+          return new FailureResponse(400, "missing required parameters [multiplier]");
+        }
+        const categoriesCreateRes = await addCategory({
+          name: merchant.categoryName,
+          multiplier: merchant.multiplier,
+        });
+        if (categoriesCreateRes instanceof FailureResponse) {
+          return categoriesCreateRes;
+        }
+        categoryID = categoriesCreateRes;
+      } else {
+        categoryID = categoriesRes[0].id!;
+      }
+
+      const query = "UPDATE merchants SET categoryID = ? WHERE id = ?";
+      const params = [categoryID, merchant.id];
+      await db.run(query, params);
+    }
+
     return new SuccessResponse(200, "successfully updated merchant");
   } catch (err) {
     return new FailureResponse(500, `${err}`);

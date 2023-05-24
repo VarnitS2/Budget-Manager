@@ -8,6 +8,7 @@ import {
   updateMerchant,
   deleteMerchant,
 } from "../../controllers/merchants.controller";
+import { MerchantRequest } from "../../models/merchant.model";
 
 const merchantsRoute: Router = express.Router();
 
@@ -17,19 +18,31 @@ merchantsRoute.get("/", (req, res) => {
 
 /**
  * @swagger
- * /merchants/add/{name}:
+ * /merchants/add:
  *  post:
  *    description: Adds a merchant to the database
- *    parameters:
- *      - in: path
- *        name: name
- *        required: true
- *        description: name of the merchant to be added to the database
- *        schema:
- *          type: string
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: the name of the merchant to be added to the database
+ *                example: "Amazon"
+ *              categoryName:
+ *                type: string
+ *                description: the name of the category of the merchant to be added to the database
+ *                example: "Shopping"
+ *              multiplier:
+ *                type: number
+ *                description: the multiplier of the category of the merchant to be added to the database
+ *                example: -1
  *    operationId: addMerchant
  *    responses:
- *      201:
+ *      200:
  *        description: success message for adding a merchant
  *        content:
  *          application/json:
@@ -50,13 +63,14 @@ merchantsRoute.get("/", (req, res) => {
  *                  type: string
  *                  example: failed to add merchant
  */
-merchantsRoute.post("/add/:name", async (req, res) => {
+merchantsRoute.post("/add", async (req, res) => {
   try {
-    const response = await addMerchant(req.params.name);
+    const merchant: MerchantRequest = req.body;
+    const response = await addMerchant(merchant);
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
-      res.status(response.status).send({ message: response.message });
+      res.status(200).send({ id: response });
     }
   } catch (err) {
     res.status(500).send({ error: err });
@@ -226,22 +240,32 @@ merchantsRoute.get("/by-name/:name", async (req, res) => {
 
 /**
  * @swagger
- * /merchants/update/{id}/{name}:
+ * /merchants/update:
  *  put:
  *    description: Updates a merchant by ID in the database
- *    parameters:
- *      - in: path
- *        name: id
- *        required: true
- *        description: the ID of the merchant to be updated in the database
- *        schema:
- *          type: integer
- *      - in: path
- *        name: name
- *        required: true
- *        description: the new name of the merchant to be updated in the database
- *        schema:
- *          type: string
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: integer
+ *                description: the ID of the merchant to be updated in the database
+ *                example: 1
+ *              name:
+ *                type: string
+ *                description: the new name of the merchant to be updated in the database
+ *                example: "Amazon"
+ *              categoryName:
+ *                type: string
+ *                description: the new category of the merchant to be updated in the database
+ *                example: "Shopping"
+ *              multiplier:
+ *                type: number
+ *                description: the new transaction amount multiplier of the category of the merchant to be updated in the database
+ *                example: -1
  *    operationId: updateMerchant
  *    responses:
  *      200:
@@ -265,9 +289,10 @@ merchantsRoute.get("/by-name/:name", async (req, res) => {
  *                  type: string
  *                  example: failed to update merchant
  */
-merchantsRoute.put("/update/:id/:name", async (req, res) => {
+merchantsRoute.put("/update", async (req, res) => {
   try {
-    const response = await updateMerchant({ id: parseInt(req.params.id), name: req.params.name });
+    const merchant: MerchantRequest = req.body;
+    const response = await updateMerchant(merchant);
     if (response instanceof FailureResponse) {
       res.status(response.status).send({ error: response.error });
     } else {
