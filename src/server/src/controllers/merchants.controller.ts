@@ -104,6 +104,51 @@ export async function getMerchantByName(name: string): Promise<Merchant[] | Fail
 }
 
 /**
+ * Asynchronous controller function to get all merchants by category ID from the database.
+ * @param categoryID - the ID of the category of the merchants to be retrieved
+ * @returns an array of merchants if the query was successful, a FailureResponse otherwise
+ */
+export async function getMerchantsByCategoryID(
+  categoryID: number
+): Promise<Merchant[] | FailureResponse> {
+  try {
+    const db = await dbPromise;
+    const query = "SELECT * FROM merchants WHERE categoryID = ?";
+    const params = [categoryID];
+
+    const merchants = await db.all<Merchant[]>(query, params);
+    return merchants;
+  } catch (err) {
+    return new FailureResponse(500, `${err}`);
+  }
+}
+
+/**
+ * Asynchronous controller function to get all merchants by category name from the database.
+ * @param categoryName - the name of the category of the merchants to be retrieved
+ * @returns an array of merchants if the query was successful, a FailureResponse otherwise
+ */
+export async function getMerchantsByCategoryName(
+  categoryName: string
+): Promise<Merchant[] | FailureResponse> {
+  try {
+    const db = await dbPromise;
+    const query = `
+      SELECT merchants.id, merchants.name, merchants.categoryID
+      FROM merchants
+      INNER JOIN categories ON merchants.categoryID = categories.id
+      WHERE categories.name = ?
+    `;
+    const params = [categoryName];
+
+    const merchants = await db.all<Merchant[]>(query, params);
+    return merchants;
+  } catch (err) {
+    return new FailureResponse(500, `${err}`);
+  }
+}
+
+/**
  * Asynchronous controller function to update a merchant in the database.
  * @param merchant - merchant of type MerchantRequest to be updated in the database
  * @returns a SuccessResponse if the merchant was updated successfully, a FailureResponse otherwise
