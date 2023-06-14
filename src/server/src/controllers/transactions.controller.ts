@@ -22,6 +22,10 @@ import { getCategoryByID } from "./categories.controller";
 function calculateMetrics(transactions: TransactionRequest[]): TransactionMetrics {
   const metrics: TransactionMetrics = {};
 
+  if (transactions.length === 0) {
+    return metrics;
+  }
+
   metrics.transactionCount = transactions.length;
   metrics.positiveTransactionCount = transactions.filter((t) => t.categoryMultiplier! > 0).length;
   metrics.negativeTransactionCount = transactions.filter((t) => t.categoryMultiplier! < 0).length;
@@ -35,13 +39,8 @@ function calculateMetrics(transactions: TransactionRequest[]): TransactionMetric
   metrics.merchantCount = merchantSet.size;
   metrics.categoryCount = categorySet.size;
 
-  const dateSet = new Set<string>();
-  transactions.forEach((t) => {
-    dateSet.add(t.date!);
-  });
-  const dateArray = Array.from(dateSet).sort();
-  const firstDate = new Date(dateArray[0]);
-  const lastDate = new Date(dateArray[dateArray.length - 1]);
+  const firstDate = new Date(transactions[0].date!);
+  const lastDate = new Date(transactions[transactions.length - 1].date!);
   metrics.dayCount =
     Math.floor((lastDate.getTime() - firstDate.getTime()) / (1000 * 3600 * 24)) + 1;
 
@@ -158,7 +157,7 @@ async function convertTransactionToTransactionRequest(
 export async function addTransaction(
   transaction: TransactionRequest
 ): Promise<number | FailureResponse> {
-  if (!transaction.merchantName || !transaction.amount || !transaction.date) {
+  if (!transaction.merchantName || transaction.amount === 0 || !transaction.date) {
     return new FailureResponse(400, "missing required parameters");
   }
 
@@ -194,7 +193,7 @@ export async function addTransaction(
 export async function getAllTransactions(): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions";
+    const query = "SELECT * FROM transactions ORDER BY date ASC";
 
     const transactions = await db.all<Transaction[]>(query);
     let transactionsResponse: TransactionRequest[] = [];
@@ -207,7 +206,7 @@ export async function getAllTransactions(): Promise<TransactionResponse | Failur
       transactionsResponse.push(convertedTransaction);
     }
 
-    const metrics = calculateMetrics(transactions);
+    const metrics = calculateMetrics(transactionsResponse);
 
     return {
       transactions: transactionsResponse,
@@ -233,6 +232,10 @@ export async function getTransactionByID(
 
     const transactions = await db.all<Transaction[]>(query, params);
 
+    if (transactions.length === 0) {
+      return new FailureResponse(404, "no transactions found");
+    }
+
     const convertedTransaction = await convertTransactionToTransactionRequest(transactions[0]);
     if (convertedTransaction instanceof FailureResponse) {
       return convertedTransaction;
@@ -253,7 +256,7 @@ export async function getTransactionsByMerchantID(
 ): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions WHERE merchantID = ?";
+    const query = "SELECT * FROM transactions WHERE merchantID = ? ORDER BY date ASC";
     const params = [merchantID];
 
     const transactions = await db.all<Transaction[]>(query, params);
@@ -267,7 +270,7 @@ export async function getTransactionsByMerchantID(
       transactionsResponse.push(convertedTransaction);
     }
 
-    const metrics = calculateMetrics(transactions);
+    const metrics = calculateMetrics(transactionsResponse);
 
     return {
       transactions: transactionsResponse,
@@ -328,6 +331,7 @@ export async function getTransactionsByCategoryName(
 
       transactionsReq = transactionsReq.concat(transactions.transactions!);
     }
+    transactionsReq.sort((a, b) => (a.date! > b.date! ? 1 : -1));
 
     const metrics = calculateMetrics(transactionsReq);
 
@@ -352,7 +356,7 @@ export async function getTransactionsByDateRange(
 ): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions WHERE date BETWEEN ? AND ?";
+    const query = "SELECT * FROM transactions WHERE date BETWEEN ? AND ? ORDER BY date ASC";
     const params = [startDate, endDate];
 
     const transactions = await db.all<Transaction[]>(query, params);
