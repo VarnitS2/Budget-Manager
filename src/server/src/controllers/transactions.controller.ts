@@ -39,8 +39,8 @@ function calculateMetrics(transactions: TransactionRequest[]): TransactionMetric
   metrics.merchantCount = merchantSet.size;
   metrics.categoryCount = categorySet.size;
 
-  const firstDate = new Date(transactions[0].date!);
-  const lastDate = new Date(transactions[transactions.length - 1].date!);
+  const firstDate = new Date(transactions[transactions.length - 1].date!);
+  const lastDate = new Date(transactions[0].date!);
   metrics.dayCount =
     Math.floor((lastDate.getTime() - firstDate.getTime()) / (1000 * 3600 * 24)) + 1;
 
@@ -193,7 +193,7 @@ export async function addTransaction(
 export async function getAllTransactions(): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions ORDER BY date ASC";
+    const query = "SELECT * FROM transactions ORDER BY date DESC";
 
     const transactions = await db.all<Transaction[]>(query);
     let transactionsResponse: TransactionRequest[] = [];
@@ -256,7 +256,7 @@ export async function getTransactionsByMerchantID(
 ): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions WHERE merchantID = ? ORDER BY date ASC";
+    const query = "SELECT * FROM transactions WHERE merchantID = ? ORDER BY date DESC";
     const params = [merchantID];
 
     const transactions = await db.all<Transaction[]>(query, params);
@@ -356,7 +356,7 @@ export async function getTransactionsByDateRange(
 ): Promise<TransactionResponse | FailureResponse> {
   try {
     const db = await dbPromise;
-    const query = "SELECT * FROM transactions WHERE date BETWEEN ? AND ? ORDER BY date ASC";
+    const query = "SELECT * FROM transactions WHERE date BETWEEN ? AND ? ORDER BY date DESC";
     const params = [startDate, endDate];
 
     const transactions = await db.all<Transaction[]>(query, params);
