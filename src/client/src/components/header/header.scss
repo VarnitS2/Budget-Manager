@@ -1,0 +1,20 @@
+#header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  height: 4rem;
+  background-color: rgb(36, 37, 40);
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+#header-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #666;
+}
+
+#header-icon {
+ cursor: pointer;
+}
