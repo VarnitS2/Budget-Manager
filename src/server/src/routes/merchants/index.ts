@@ -102,6 +102,14 @@ merchantsRoute.post("/add", async (req, res) => {
  *                      type: string
  *                      description: the name of the merchant
  *                      example: "Amazon"
+ *                    categoryName:
+ *                      type: string
+ *                      description: the name of the category of the merchant
+ *                      example: "Shopping"
+ *                    multiplier:
+ *                      type: number
+ *                      description: the multiplier of the category of the merchant
+ *                      example: -1
  *      500:
  *        description: failure message for getting all merchants
  *        content:
@@ -158,6 +166,14 @@ merchantsRoute.get("/all", async (req, res) => {
  *                      type: string
  *                      description: the name of the merchant
  *                      example: "Amazon"
+ *                    categoryName:
+ *                      type: string
+ *                      description: the name of the category of the merchant
+ *                      example: "Shopping"
+ *                    multiplier:
+ *                      type: number
+ *                      description: the multiplier of the category of the merchant
+ *                      example: -1
  *      500:
  *        description: failure message for getting merchant by id
  *        content:
@@ -214,6 +230,14 @@ merchantsRoute.get("/by-id/:id", async (req, res) => {
  *                      type: string
  *                      description: the name of the merchant
  *                      example: "Amazon"
+ *                    categoryName:
+ *                      type: string
+ *                      description: the name of the category of the merchant
+ *                      example: "Shopping"
+ *                    multiplier:
+ *                      type: number
+ *                      description: the multiplier of the category of the merchant
+ *                      example: -1
  *      500:
  *        description: failure message for getting merchant by name
  *        content:
