@@ -1,74 +1,74 @@
 export interface Transaction {
   // serial id of the transaction
-  id?: number;
+  id: number;
 
   // name of the merchant
-  merchantName?: string;
+  merchantName: string;
 
   // name of the category of the merchant
-  categoryName?: string;
+  categoryName: string;
 
   // multiplier of the category of the merchant
-  categoryMultiplier?: number;
+  categoryMultiplier: number;
 
   // amount of the transaction
-  amount?: number;
+  amount: number;
 
   // date of the transaction
-  date?: string;
+  date: string;
 }
 
 export interface TransactionMetrics {
   // count of transactions
-  transactionCount?: number;
+  transactionCount: number;
 
   // count of positive transactions
-  positiveTransactionCount?: number;
+  positiveTransactionCount: number;
 
   // count of negative transactions
-  negativeTransactionCount?: number;
+  negativeTransactionCount: number;
 
   // count of merchants
-  merchantCount?: number;
+  merchantCount: number;
 
   // count of categories
-  categoryCount?: number;
+  categoryCount: number;
 
   // count of days
-  dayCount?: number;
+  dayCount: number;
 
   // net amount
-  balance?: number;
+  balance: number;
 
   // net positive amount
-  netPositive?: number;
+  netPositive: number;
 
   // net negative amount
-  netNegative?: number;
+  netNegative: number;
 
   // average positive amount per transaction
-  averagePositive?: number;
+  averagePositive: number;
 
   // average negative amount per transaction
-  averageNegative?: number;
+  averageNegative: number;
 
   // maximum negative amount
-  maximumNegative?: number;
+  maximumNegative: number;
 
   // minimum negative amount
-  minimumNegative?: number;
+  minimumNegative: number;
 
   // positive per day
-  positivePerDay?: number;
+  positivePerDay: number;
 
   // negative per day
-  negativePerDay?: number;
+  negativePerDay: number;
 }
 
 export interface TransactionResponse {
   // array of transactions
-  transactions?: Transaction[];
+  transactions: Transaction[];
 
   // transaction metrics
-  metrics?: TransactionMetrics;
+  metrics: TransactionMetrics;
 }

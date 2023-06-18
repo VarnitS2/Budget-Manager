@@ -1,13 +1,13 @@
 export interface Merchant {
   // serial id of the merchant
-  id?: number;
+  id: number;
 
   // name of the merchant
-  name?: string;
+  name: string;
 
   // name of the category of the merchant
-  categoryName?: string;
+  categoryName: string;
 
   // multiplier of the category of the merchant
-  multiplier?: number;
+  multiplier: number;
 }

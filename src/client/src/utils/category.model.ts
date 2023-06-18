@@ -1,10 +1,10 @@
 export interface Category {
   // serial id of the category
-  id?: number;
+  id: number;
 
   // category name
-  name?: string;
+  name: string;
 
   // category multiplier
-  multiplier?: number;
+  multiplier: number;
 }
