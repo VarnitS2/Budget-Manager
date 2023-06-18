@@ -20,6 +20,7 @@
     "@types/node": "^16.18.25",
     "@types/react": "^18.2.5",
     "@types/react-dom": "^18.2.4",
+    "axios": "^1.4.0",
     "dayjs": "^1.11.8",
     "embla-carousel-react": "^8.0.0-rc07",
     "react": "^18.2.0",
