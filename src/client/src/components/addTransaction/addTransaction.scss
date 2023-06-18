@@ -1,0 +1,63 @@
+#add-transaction-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#add-transaction-merchant {
+  width: 100%;
+  padding: 1rem 0.25rem 0.5rem 0.25rem;
+}
+
+#add-transaction-merchant-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+#add-transaction-merchant-name {
+  width: 85%;
+}
+
+#add-transaction-add-merchant-container {
+  padding-top: 0.25rem;
+}
+
+#add-transaction-add-merchant-content {
+  display: flex;
+  flex-direction: column;
+}
+
+#add-transaction-add-merchant-category-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+#add-transaction-add-merchant-category-name {
+  width: 75%;
+}
+
+#add-transaction-add-category-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+#add-transaction-add-category-name {
+  width: 75%;
+}
+
+#add-transaction-amount {
+  width: 100%;
+  padding: 1rem 0.25rem 0.5rem 0.25rem;
+}
+
+#add-transaction-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.5rem 0.25rem 1.5rem 0.25rem;
+}
