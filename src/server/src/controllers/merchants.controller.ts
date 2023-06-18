@@ -1,7 +1,32 @@
 import dbPromise from "../utils/database";
 import { Merchant, MerchantRequest } from "../models/merchant.model";
 import { SuccessResponse, FailureResponse } from "../utils/responses";
-import { addCategory, getCategoryByName } from "./categories.controller";
+import { addCategory, getCategoryByID, getCategoryByName } from "./categories.controller";
+
+/**
+ * Asynchronous helper function to convert a Merchant to a MerchantRequest.
+ * @param merchant - merchant of type Merchant to be converted
+ * @returns a MerchantRequest if the conversion was successful, a FailureResponse otherwise
+ */
+async function convertMerchantToMerchantRequest(
+  merchant: Merchant
+): Promise<MerchantRequest | FailureResponse> {
+  try {
+    const categoriesRes = await getCategoryByID(merchant.categoryID!);
+    if (categoriesRes instanceof FailureResponse) {
+      return categoriesRes;
+    }
+
+    return {
+      id: merchant.id,
+      name: merchant.name,
+      categoryName: categoriesRes[0].name,
+      multiplier: categoriesRes[0].multiplier,
+    };
+  } catch (err) {
+    return new FailureResponse(500, `${err}`);
+  }
+}
 
 /**
  * Asynchronous controller function to add a merchant to the database.
@@ -55,13 +80,23 @@ export async function addMerchant(merchant: MerchantRequest): Promise<number | F
  * Asynchronous controller function to get all merchants from the database.
  * @returns an array of merchants if the query was successful, a FailureResponse otherwise
  */
-export async function getAllMerchants(): Promise<Merchant[] | FailureResponse> {
+export async function getAllMerchants(): Promise<MerchantRequest[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM merchants";
 
     const merchants = await db.all<Merchant[]>(query);
-    return merchants;
+    const merchantResponse: MerchantRequest[] = [];
+
+    for (const merchant of merchants) {
+      const merchantRequest = await convertMerchantToMerchantRequest(merchant);
+      if (merchantRequest instanceof FailureResponse) {
+        return merchantRequest;
+      }
+      merchantResponse.push(merchantRequest);
+    }
+
+    return merchantResponse;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -72,14 +107,24 @@ export async function getAllMerchants(): Promise<Merchant[] | FailureResponse> {
  * @param id - the ID of the merchant to be retrieved
  * @returns an array containing a merchant if the query was successful, a FailureResponse otherwise
  */
-export async function getMerchantByID(id: number): Promise<Merchant[] | FailureResponse> {
+export async function getMerchantByID(id: number): Promise<MerchantRequest[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM merchants WHERE id = ?";
     const params = [id];
 
     const merchants = await db.all<Merchant[]>(query, params);
-    return merchants;
+
+    if (merchants.length === 0) {
+      return new FailureResponse(404, "merchant not found");
+    }
+
+    const merchantRequest = await convertMerchantToMerchantRequest(merchants[0]);
+    if (merchantRequest instanceof FailureResponse) {
+      return merchantRequest;
+    }
+
+    return [merchantRequest];
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -90,14 +135,26 @@ export async function getMerchantByID(id: number): Promise<Merchant[] | FailureR
  * @param name - the name of the merchant to be retrieved
  * @returns an array containing a merchant if the query was successful, a FailureResponse otherwise
  */
-export async function getMerchantByName(name: string): Promise<Merchant[] | FailureResponse> {
+export async function getMerchantByName(
+  name: string
+): Promise<MerchantRequest[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM merchants WHERE name = ?";
     const params = [name];
 
     const merchants = await db.all<Merchant[]>(query, params);
-    return merchants;
+    const merchantResponse: MerchantRequest[] = [];
+
+    for (const merchant of merchants) {
+      const merchantRequest = await convertMerchantToMerchantRequest(merchant);
+      if (merchantRequest instanceof FailureResponse) {
+        return merchantRequest;
+      }
+      merchantResponse.push(merchantRequest);
+    }
+
+    return merchantResponse;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -110,14 +167,24 @@ export async function getMerchantByName(name: string): Promise<Merchant[] | Fail
  */
 export async function getMerchantsByCategoryID(
   categoryID: number
-): Promise<Merchant[] | FailureResponse> {
+): Promise<MerchantRequest[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = "SELECT * FROM merchants WHERE categoryID = ?";
     const params = [categoryID];
 
     const merchants = await db.all<Merchant[]>(query, params);
-    return merchants;
+    const merchantResponse: MerchantRequest[] = [];
+
+    for (const merchant of merchants) {
+      const merchantRequest = await convertMerchantToMerchantRequest(merchant);
+      if (merchantRequest instanceof FailureResponse) {
+        return merchantRequest;
+      }
+      merchantResponse.push(merchantRequest);
+    }
+
+    return merchantResponse;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -130,7 +197,7 @@ export async function getMerchantsByCategoryID(
  */
 export async function getMerchantsByCategoryName(
   categoryName: string
-): Promise<Merchant[] | FailureResponse> {
+): Promise<MerchantRequest[] | FailureResponse> {
   try {
     const db = await dbPromise;
     const query = `
@@ -142,7 +209,17 @@ export async function getMerchantsByCategoryName(
     const params = [categoryName];
 
     const merchants = await db.all<Merchant[]>(query, params);
-    return merchants;
+    const merchantResponse: MerchantRequest[] = [];
+
+    for (const merchant of merchants) {
+      const merchantRequest = await convertMerchantToMerchantRequest(merchant);
+      if (merchantRequest instanceof FailureResponse) {
+        return merchantRequest;
+      }
+      merchantResponse.push(merchantRequest);
+    }
+
+    return merchantResponse;
   } catch (err) {
     return new FailureResponse(500, `${err}`);
   }
@@ -168,7 +245,7 @@ export async function updateMerchant(
       const params = [merchant.name, merchant.id];
       await db.run(query, params);
     }
-    
+
     if (merchant.categoryName) {
       const categoriesRes = await getCategoryByName(merchant.categoryName);
       if (categoriesRes instanceof FailureResponse) {

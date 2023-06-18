@@ -12,7 +12,6 @@ import {
   getMerchantByName,
   getMerchantsByCategoryName,
 } from "./merchants.controller";
-import { getCategoryByID } from "./categories.controller";
 
 /**
  * Helper function to calculate metrics for an array of transactions.
@@ -132,15 +131,12 @@ async function convertTransactionToTransactionRequest(
     if (merchantRes instanceof FailureResponse) {
       return merchantRes;
     }
-    const categoryRes = await getCategoryByID(merchantRes[0].categoryID!);
-    if (categoryRes instanceof FailureResponse) {
-      return categoryRes;
-    }
+    
     return {
       id: transaction.id,
       merchantName: merchantRes[0].name,
-      categoryName: categoryRes[0].name,
-      categoryMultiplier: categoryRes[0].multiplier,
+      categoryName: merchantRes[0].categoryName,
+      categoryMultiplier: merchantRes[0].multiplier,
       amount: transaction.amount,
       date: transaction.date,
     };
