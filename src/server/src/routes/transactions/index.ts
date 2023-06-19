@@ -54,15 +54,15 @@ transactionsRoute.get("/", (req, res) => {
  *    operationId: addTransaction
  *    responses:
  *      200:
- *        description: success message for adding a transaction
+ *        description: success response containing the id of the added transaction
  *        content:
  *          application/json:
  *            schema:
  *              type: object
  *              properties:
  *                message:
- *                  type: string
- *                  example: transaction added successfully
+ *                  type: number
+ *                  example: 1
  *      500:
  *        description: error message for failing to add a transaction
  *        content:
