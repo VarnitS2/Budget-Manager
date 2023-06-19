@@ -55,9 +55,15 @@
   padding: 1rem 0.25rem 0.5rem 0.25rem;
 }
 
-#add-transaction-buttons {
+.add-transaction-buttons {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   padding: 1.5rem 0.25rem 1.5rem 0.25rem;
+}
+
+#add-transaction-add-button {
+  width: 5rem;
+  height: 2.5rem;
+  font-size: 1rem;
 }

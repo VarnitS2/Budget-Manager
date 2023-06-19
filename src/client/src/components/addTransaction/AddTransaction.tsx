@@ -10,13 +10,14 @@ import {
   ActionIcon,
   ThemeIcon,
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { useDisclosure, useToggle } from "@mantine/hooks";
-import { IconArrowUp, IconArrowDown, IconCheck, IconMinus, IconX } from "@tabler/icons-react";
+import { IconArrowUp, IconArrowDown, IconCheck, IconMinus } from "@tabler/icons-react";
 import { addMerchant, getAllMerchants } from "../../services/merchantAPICallerService";
 import { addCategory, getAllCategories } from "../../services/categoryAPICallerService";
+import { addTransaction } from "../../services/transactionAPICallerService";
 import { Merchant } from "../../utils/merchant.model";
 import { Category } from "../../utils/category.model";
+import { showSuccessNotification, showErrorNotification } from "../../utils/notifications";
 
 const AddTransaction = () => {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
@@ -24,7 +25,8 @@ const AddTransaction = () => {
 
   const [transactionDate, setTransactionDate] = useState<Date | null>(null);
   const [transactionMerchant, setTransactionMerchant] = useState<string>("");
-  const [transactionMerchantMultiplier, setTransactionMerchantMultiplier] = useState<number>(0);
+  const [transactionCategory, setTransactionCategory] = useState<string>("");
+  const [transactionCategoryMultiplier, setTransactionCategoryMultiplier] = useState<number>(0);
   const [transactionAmount, setTransactionAmount] = useState<number | "">("");
 
   const merchantNameRef = useRef<HTMLInputElement>(null);
@@ -55,11 +57,8 @@ const AddTransaction = () => {
   const setMerchantsArray = () => {
     getAllMerchants().then((newMerchants) => {
       if (typeof newMerchants === "string") {
-        console.log("ERROR");
         return;
       } else {
-        console.log("LOADING NEW MERCHANTS");
-        console.log(newMerchants);
         setMerchants(newMerchants);
       }
     });
@@ -73,6 +72,96 @@ const AddTransaction = () => {
         setCategories(categories);
       }
     });
+  };
+
+  const addNewMerchant = async () => {
+    if (newMerchantName === "") {
+      showErrorNotification("Invalid Merchant Name", "Please enter a valid merchant name");
+      return;
+    }
+
+    if (newMerchantCategoryName === "") {
+      showErrorNotification("Invalid Category Name", "Please select a valid category");
+      return;
+    }
+
+    await addMerchant({
+      name: newMerchantName,
+      categoryName: newMerchantCategoryName,
+      multiplier: newMerchantCategoryMultiplier,
+    }).then((res) => {
+      if (typeof res === "string") {
+        showErrorNotification("An Error Occurred", res);
+      } else {
+        showSuccessNotification("Merchant Added", `New merchant created with ID ${res}`);
+      }
+    });
+
+    setMerchantsArray();
+    addMerchantCollapseHandlers.close();
+  };
+
+  const addNewCategory = async () => {
+    if (newCategoryName === "") {
+      showErrorNotification("Invalid Category Name", "Please enter a valid category name");
+      return;
+    }
+
+    await addCategory({
+      name: newCategoryName,
+      multiplier: newCategoryMultiplier,
+    }).then((res) => {
+      if (typeof res === "string") {
+        showErrorNotification("An Error Occurred", res);
+        return;
+      } else {
+        showSuccessNotification("Category Added", `New category created with ID ${res}`);
+        setNewCategoryName("");
+      }
+    });
+
+    setCategoriesArray();
+    addCategoryCollapseHandlers.close();
+  };
+
+  const addNewTransaction = async () => {
+    if (transactionDate == null) {
+      showErrorNotification("Invalid Date", "Please select a date");
+      return;
+    }
+
+    if (transactionMerchant === "") {
+      showErrorNotification("Invalid Merchant", "Please select a merchant");
+      return;
+    }
+
+    if (transactionAmount === "") {
+      showErrorNotification("Invalid Amount", "Please enter a valid amount");
+      return;
+    }
+
+    await addTransaction({
+      merchantName: transactionMerchant,
+      categoryName: transactionCategory,
+      categoryMultiplier: transactionCategoryMultiplier,
+      amount: transactionAmount as number,
+      date: `${
+        transactionDate.getMonth() + 1
+      }/${transactionDate.getDate()}/${transactionDate.getFullYear()}`,
+    }).then((res) => {
+      if (typeof res === "string") {
+        showErrorNotification("An Error Occurred", res);
+      } else {
+        showSuccessNotification("Transaction Added", `New transaction created with ID ${res}`);
+        setTransactionDate(null);
+        setTransactionMerchant("");
+        setTransactionCategory("");
+        setTransactionCategoryMultiplier(0);
+        setTransactionAmount("");
+      }
+    });
+
+    // close drawer here
   };
 
   return (
@@ -96,12 +185,13 @@ const AddTransaction = () => {
               data={merchants.map((merchant) => ({ ...merchant, value: merchant.name }))}
               value={transactionMerchant}
               onItemSubmit={(value) => {
-                setTransactionMerchantMultiplier(value.multiplier);
+                setTransactionCategory(value.categoryName);
+                setTransactionCategoryMultiplier(value.multiplier);
               }}
               onChange={(value) => {
                 setTransactionMerchant(value);
                 if (value === "") {
-                  setTransactionMerchantMultiplier(0);
+                  setTransactionCategoryMultiplier(0);
                 }
                 addMerchantCollapseHandlers.close();
               }}
@@ -123,16 +213,16 @@ const AddTransaction = () => {
             variant="filled"
             size="2.6rem"
             color={
-              transactionMerchantMultiplier === 0
+              transactionCategoryMultiplier === 0
                 ? "gray"
-                : transactionMerchantMultiplier < 0
+                : transactionCategoryMultiplier < 0
                 ? "red"
                 : "teal"
             }
           >
-            {transactionMerchantMultiplier === 0 ? (
+            {transactionCategoryMultiplier === 0 ? (
               <IconMinus size="1rem" />
-            ) : transactionMerchantMultiplier < 0 ? (
+            ) : transactionCategoryMultiplier < 0 ? (
               <IconArrowDown size="1rem" />
             ) : (
               <IconArrowUp size="1rem" />
@@ -207,31 +297,7 @@ const AddTransaction = () => {
                   variant="filled"
                   color="blue"
                   size="2.25rem"
-                  onClick={async () => {
-                    await addMerchant({
-                      name: newMerchantName,
-                      categoryName: newMerchantCategoryName,
-                      multiplier: newMerchantCategoryMultiplier,
-                    }).then((res) => {
-                      if (typeof res === "string") {
-                        notifications.show({
-                          title: "An Error Occurred",
-                          message: res,
-                          icon: <IconX size="1.5rem" />,
-                          color: "red",
-                        });
-                      } else {
-                        notifications.show({
-                          title: "Merchant Added",
-                          message: `New merchant created with ID ${res}`,
-                          icon: <IconCheck size="1.5rem" />,
-                          color: "teal",
-                        });
-                      }
-                    });
-                    setMerchantsArray();
-                    addMerchantCollapseHandlers.close();
-                  }}
+                  onClick={addNewMerchant}
                   disabled={addCategoryOpened}
                 >
                   <IconCheck size="1rem" />
@@ -267,30 +333,7 @@ const AddTransaction = () => {
                       variant="filled"
                       color="blue"
                       size="2.25rem"
-                      onClick={async () => {
-                        await addCategory({
-                          name: newCategoryName,
-                          multiplier: newCategoryMultiplier,
-                        }).then((res) => {
-                          if (typeof res === "string") {
-                            notifications.show({
-                              title: "An Error Occurred",
-                              message: res,
-                              icon: <IconX size="1.5rem" />,
-                              color: "red",
-                            });
-                          } else {
-                            notifications.show({
-                              title: "Category Added",
-                              message: `New category created with ID ${res}`,
-                              icon: <IconCheck size="1.5rem" />,
-                              color: "teal",
-                            });
-                          }
-                        });
-                        setCategoriesArray();
-                        addCategoryCollapseHandlers.close();
-                      }}
+                      onClick={addNewCategory}
                     >
                       <IconCheck size="1rem" />
                     </ActionIcon>
@@ -319,8 +362,10 @@ const AddTransaction = () => {
         />
       </div>
 
-      <div id="add-transaction-buttons">
-        <Button>Add</Button>
+      <div className="add-transaction-buttons">
+        <Button id="add-transaction-add-button" onClick={addNewTransaction}>
+          Add
+        </Button>
       </div>
     </div>
   );
